@@ -17,7 +17,7 @@ Static status page for the EPISERVE platform, served with GitHub Pages.
   a 30-day bar, then the flows with last run, next run and status. The
   dataset download flows are collapsed into one expandable row.
 - Specs: for each spec (`model-card`, `fdo`) the release and schema versions
-  on GitHub, in the catalog and in the API server, marked as OK, behind,
+  on GitHub, in the data hub sync check and in the API server, marked as OK, behind,
   invalid or unknown.
 
 Times are shown in the viewer's local time zone; hover for UTC.

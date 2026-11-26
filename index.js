@@ -73,7 +73,14 @@ function specCell(cell, label) {
 function specsTable(specs) {
   const t = el("table", "spectable");
   const hr = el("tr");
-  for (const h of ["Spec", "GitHub", "Catalog", "API"]) hr.append(el("th", "", h));
+  const tips = {
+    "Data hub sync check": "Release the data hub sync uses to check the model cards, and how many passed",
+  };
+  for (const h of ["Spec", "GitHub", "Data hub sync check", "API"]) {
+    const th = el("th", "", h);
+    if (tips[h]) th.title = tips[h];
+    hr.append(th);
+  }
   const head = el("thead");
   head.append(hr);
   t.append(head);
@@ -87,7 +94,7 @@ function specsTable(specs) {
     const th = el("th", "", r.spec);
     th.scope = "row";
     tr.append(th);
-    tr.append(specCell(c.github, "GitHub"), specCell(c.catalog, "Catalog"), specCell(c.api, "API"));
+    tr.append(specCell(c.github, "GitHub"), specCell(c.catalog, "Data hub sync check"), specCell(c.api, "API"));
     body.append(tr);
   }
   t.append(body);

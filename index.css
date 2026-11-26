@@ -90,6 +90,6 @@ footer a { color: inherit; }
   .spectable tr { border-top: 1px solid var(--line); padding: 6px 0; }
   .spectable th, .spectable td { border-top: 0; padding: 2px 0; }
   .spectable td { display: flex; gap: 8px; align-items: flex-start; }
-  .spectable td::before { content: attr(data-label); flex: none; width: 4.5rem; color: var(--muted); font-size: .85rem; padding-top: 1px; }
+  .spectable td::before { content: attr(data-label); flex: none; width: 6rem; color: var(--muted); font-size: .85rem; padding-top: 1px; }
   .speccell { min-width: 0; }
 }
