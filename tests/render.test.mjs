@@ -144,7 +144,7 @@ test("spec cell catalog warnings and invalid beats behind", () => {
   assert.deepEqual(i.catalog, { level: "invalid", text: "0.7.0 \u00b7 4/5 valid \u00b7 invalid" });
   const b = specCells(row({ catalog: { releases: ["0.7.0", "0.7.1"], valid: 5, total: 5, warnings: 0 } }), "0.7.1");
   assert.equal(b.catalog.level, "behind");
-  assert.equal(b.catalog.text, "0.7.0, 0.7.1 \u00b7 5/5 valid");
+  assert.equal(b.catalog.text, "0.7.0, 0.7.1 \u00b7 5/5 valid \u00b7 behind");
 });
 
 test("spec cell catalog not recorded and null sources", () => {
@@ -167,4 +167,25 @@ test("spec cells without specs section", () => {
   for (const k of ["github", "catalog", "api"]) {
     assert.deepEqual(c[k], { level: "unknown", text: "unknown" });
   }
+});
+
+test("spec cell api versions compared regardless of order", () => {
+  const c = specCells(row({ github: { release: "0.7.1", versions: ["2", "10"] },
+    api: { release: "0.7.1", versions: ["10", "2"] } }), "0.7.1");
+  assert.equal(c.api.level, "ok");
+});
+
+test("spec cell catalog with no models is unknown", () => {
+  const c = specCells(row({ catalog: { releases: [], valid: 0, total: 0, warnings: 0 } }), "0.7.1");
+  assert.deepEqual(c.catalog, { level: "unknown", text: "unknown" });
+});
+
+test("spec cell catalog without releases has no leading separator", () => {
+  const c = specCells(row({ catalog: { releases: [], valid: 2, total: 3, warnings: 0 } }), "0.7.1");
+  assert.equal(c.catalog.text, "2/3 valid \u00b7 invalid");
+});
+
+test("spec cell catalog invalid wins even without latest", () => {
+  const c = specCells(row({ catalog: { releases: ["0.7.0"], valid: 4, total: 5, warnings: 0 } }), null);
+  assert.equal(c.catalog.level, "invalid");
 });

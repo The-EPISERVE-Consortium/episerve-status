@@ -195,7 +195,11 @@ function render(status, now) {
     }
   }
 
-  specs.append(specsTable(status.specs));
+  try {
+    specs.append(specsTable(status.specs));
+  } catch (e) {
+    specs.replaceChildren(specsTable(undefined));
+  }
 
   for (const e of itemsOf(status, "pods")) pods.append(dotItem(e));
 }

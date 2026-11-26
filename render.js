@@ -100,7 +100,8 @@ const DOT = " · ";
 export function specCells(row, latest) {
   if (!row) return { github: UNKNOWN(), catalog: UNKNOWN(), api: UNKNOWN() };
   const { github: gh, api, catalog: cat } = row;
-  const ghVersions = gh ? gh.versions.join(",") : null;
+  const key = (v) => v.slice().sort((a, b) => a - b).join(",");
+  const ghVersions = gh ? key(gh.versions) : null;
 
   const github = gh
     ? { level: "none", text: `v${gh.release}${DOT}${gh.versions.map((v) => `v${v}`).join(", ")}` }
@@ -111,7 +112,7 @@ export function specCells(row, latest) {
     const text = `${api.release}${DOT}${api.versions.map((v) => `v${v}`).join(", ")}`;
     if (latest == null) apiCell = { level: "unknown", text };
     else if (compareRelease(api.release, latest) < 0 ||
-             (ghVersions !== null && api.versions.join(",") !== ghVersions)) {
+             (ghVersions !== null && key(api.versions) !== ghVersions)) {
       apiCell = { level: "behind", text: `${text}${DOT}behind` };
     } else apiCell = { level: "ok", text };
   }
@@ -119,12 +120,13 @@ export function specCells(row, latest) {
   let catalog = UNKNOWN();
   if (cat && cat.recorded === false) {
     catalog = { level: "notrecorded", text: "not recorded" };
-  } else if (cat) {
-    let text = `${cat.releases.join(", ")}${DOT}${cat.valid}/${cat.total} valid`;
+  } else if (cat && cat.total > 0) {
+    const rel = cat.releases.length ? `${cat.releases.join(", ")}${DOT}` : "";
+    let text = `${rel}${cat.valid}/${cat.total} valid`;
     if (cat.warnings > 0) text += ` (${cat.warnings} with warnings)`;
     if (cat.valid < cat.total) catalog = { level: "invalid", text: `${text}${DOT}invalid` };
     else if (latest == null) catalog = { level: "unknown", text };
-    else if (cat.releases.some((r) => compareRelease(r, latest) < 0)) catalog = { level: "behind", text };
+    else if (cat.releases.some((r) => compareRelease(r, latest) < 0)) catalog = { level: "behind", text: `${text}${DOT}behind` };
     else catalog = { level: "ok", text };
   }
   return { github, catalog, api: apiCell };
