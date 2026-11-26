@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EPISERVE Platform Status</title>
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>EPISERVE Platform Status</h1>
+    <p id="updated" class="updated">Last data update: loading</p>
+  </header>
+  <div id="banner" class="banner level-missing" role="status">Loading</div>
+  <p id="alerts" class="alerts level-unknown"></p>
+  <section><h2>Public services</h2><div id="public" class="rows"></div></section>
+  <section><h2>Prefect</h2><div id="prefect" class="rows"></div></section>
+  <section><h2>Prefect flows</h2><div id="flows" class="flows"></div></section>
+  <section><h2>Platform pods</h2><div id="pods" class="dots"></div></section>
+  <noscript><p>This page needs JavaScript to show the status.</p></noscript>
+  <footer>
+    <p>Updated hourly from inside the EPISERVE cluster.
+    <a href="https://github.com/The-EPISERVE-Consortium/episerve-status">GitHub</a></p>
+  </footer>
+</main>
+<script type="module" src="index.js"></script>
+</body>
+</html>
