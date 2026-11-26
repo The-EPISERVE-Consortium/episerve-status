@@ -63,9 +63,9 @@ section h2 { margin-top: 12px; }
 .flows .head { border-top: 0; color: var(--muted); font-size: .85rem; }
 .flows details > summary { cursor: pointer; list-style: none; }
 .flows details > summary::-webkit-details-marker { display: none; }
-.flows details > summary .name::before { content: "\25B8\00a0"; }
-.flows details[open] > summary .name::before { content: "\25BE\00a0"; }
-.flows details .flow { padding-left: 18px; font-size: .92rem; }
+.flows details > summary .name::after { content: "\00a0\25BE"; color: var(--muted); }
+.flows details[open] > summary .name::after { content: "\00a0\25B4"; }
+.flows details > .flow:not(summary) { padding-left: 18px; font-size: .92rem; }
 .flow .name { overflow-wrap: anywhere; }
 .flow .time { color: var(--muted); font-size: .92rem; }
 section h3 { font-size: .9rem; margin: 14px 0 4px; color: var(--muted); }
@@ -84,4 +84,12 @@ footer a { color: inherit; }
   .flow, .flows summary { grid-template-columns: 1fr 1.5rem; }
   .flow .time { grid-column: 1; }
   .flows .head { display: none; }
+  .flow .time::before { content: attr(data-label) "\00a0\00a0"; }
+  .spectable thead { display: none; }
+  .spectable, .spectable tbody, .spectable tr, .spectable th, .spectable td { display: block; }
+  .spectable tr { border-top: 1px solid var(--line); padding: 6px 0; }
+  .spectable th, .spectable td { border-top: 0; padding: 2px 0; }
+  .spectable td { display: flex; gap: 8px; align-items: flex-start; }
+  .spectable td::before { content: attr(data-label); flex: none; width: 4.5rem; color: var(--muted); font-size: .85rem; padding-top: 1px; }
+  .speccell { min-width: 0; }
 }

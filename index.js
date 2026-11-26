@@ -128,7 +128,12 @@ function barRow(status, key, v, now, word) {
 
 function flowRow(name, f, cls) {
   const r = el(cls === "summary" ? "summary" : "div", "flow");
-  r.append(el("span", "name", name), when(f.lastRun, true), when(f.nextRun, true), dot(f.ok));
+  const last = when(f.lastRun, true);
+  const next = when(f.nextRun, true);
+  // Shown in front of the times on narrow screens, where the column header is hidden.
+  last.dataset.label = "Last run";
+  next.dataset.label = "Next run";
+  r.append(el("span", "name", name), last, next, dot(f.ok));
   return r;
 }
 
