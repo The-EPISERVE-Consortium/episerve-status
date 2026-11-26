@@ -210,3 +210,19 @@ test("components: down names the failing parts", () => {
 test("components: missing parts count as down", () => {
   assert.deepEqual(componentsStatus({}), { ok: false, text: "down (Server, Worker, Database, Scheduler)" });
 });
+
+test("lastDays carries the check counts", () => {
+  const today = new Date("2026-11-26T12:00:00Z");
+  const days = lastDays({ k: { "2026-11-26": [7, 8] } }, "k", today);
+  assert.deepEqual(days.at(-1), { date: "2026-11-26", colour: "partial", ok: 7, total: 8 });
+  assert.deepEqual(days.at(-2), { date: "2026-11-25", colour: "nodata", ok: 0, total: 0 });
+});
+
+test("dayLabel with check counts and last check", () => {
+  assert.equal(dayLabel({ date: "2026-11-26", colour: "ok", ok: 8, total: 8 }),
+    "2026-11-26: fully up, 8 of 8 checks OK");
+  assert.equal(dayLabel({ date: "2026-11-26", colour: "partial", ok: 7, total: 8 }, "20:05"),
+    "2026-11-26: partly down, 7 of 8 checks OK, last check 20:05");
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "nodata", ok: 0, total: 0 }, "20:05"),
+    "2026-11-25: no data");
+});

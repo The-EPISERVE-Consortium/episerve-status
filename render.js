@@ -50,7 +50,9 @@ export function lastDays(history, key, today, n = 30) {
   const out = [];
   for (let i = n - 1; i >= 0; i--) {
     const date = isoDay(new Date(base - i * 86400000));
-    out.push({ date, colour: dayColour(series[date]) });
+    const sample = series[date];
+    const [ok, total] = Array.isArray(sample) ? sample : [0, 0];
+    out.push({ date, colour: dayColour(sample), ok, total });
   }
   return out;
 }
@@ -71,8 +73,13 @@ export function downloadsSummary(flows) {
 
 const DAY_TEXT = { ok: "fully up", partial: "partly down", down: "down", nodata: "no data" };
 
-export function dayLabel(day) {
-  return `${day.date}: ${DAY_TEXT[day.colour]}`;
+// lastCheck (e.g. "20:05") is given for today's square only.
+export function dayLabel(day, lastCheck) {
+  let s = `${day.date}: ${DAY_TEXT[day.colour]}`;
+  if (day.colour === "nodata" || !day.total) return s;
+  s += `, ${day.ok} of ${day.total} checks OK`;
+  if (lastCheck) s += `, last check ${lastCheck}`;
+  return s;
 }
 
 export function barSummary(days) {

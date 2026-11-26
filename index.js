@@ -100,16 +100,19 @@ function specsTable(specs) {
   return t;
 }
 
+// Local time of the last check, shown in the tooltip of today's square.
+let lastCheck = null;
+
 function bar(history, key, now) {
   const b = el("div", "bar");
   const days = lastDays(history, key, now);
   b.setAttribute("role", "img");
   b.setAttribute("aria-label", barSummary(days));
-  for (const d of days) {
+  days.forEach((d, n) => {
     const i = el("i", d.colour);
-    i.title = dayLabel(d);
+    i.title = dayLabel(d, n === days.length - 1 ? lastCheck : null);
     b.append(i);
-  }
+  });
   return b;
 }
 
@@ -153,6 +156,12 @@ function render(status, now) {
   up.textContent = "Last data update: ";
   if (status && status.generated_at) up.append(when(status.generated_at, false));
   else up.append("unknown");
+
+  const gen = status && status.generated_at ? new Date(status.generated_at) : null;
+  lastCheck = gen && !Number.isNaN(gen.getTime()) &&
+    gen.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)
+    ? gen.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : null;
 
   const pub = document.getElementById("public");
   const pre = document.getElementById("prefect");
