@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  STALE_MS, isStale, banner, alertsLine, dayColour, lastDays, downloadsSummary,
+  STALE_MS, isStale, banner, alertsLine, dayColour, lastDays, downloadsSummary, barSummary, dayLabel,
 } from "../render.js";
 
 const now = new Date("2026-11-26T18:00:00Z");
@@ -84,4 +84,21 @@ test("downloadsSummary", () => {
     okCount: 2, total: 3, ok: false,
     lastRun: "2026-11-26T01:00:00Z", nextRun: "2026-11-27T00:00:00Z",
   });
+});
+
+test("barSummary", () => {
+  const days = [
+    ...Array.from({ length: 28 }, () => ({ colour: "ok" })),
+    { colour: "partial" }, { colour: "down" },
+  ];
+  assert.equal(barSummary(days), "30-day history, 28 of 30 days fully up, 1 partly down, 1 down");
+  assert.equal(barSummary([{ colour: "nodata" }, { colour: "ok" }]),
+    "2-day history, 1 of 2 days fully up, 1 without data");
+});
+
+test("dayLabel", () => {
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "ok" }), "2026-11-25: fully up");
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "partial" }), "2026-11-25: partly down");
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "down" }), "2026-11-25: down");
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "nodata" }), "2026-11-25: no data");
 });

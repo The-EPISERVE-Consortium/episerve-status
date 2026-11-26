@@ -29,6 +29,7 @@ h2 { font-size: 1.05rem; margin: 28px 0 8px; }
   background: var(--nodata); display: inline-block;
 }
 .alerts::before { margin-right: 8px; }
+.dot { color: #fff; font-size: 9px; line-height: 14px; text-align: center; font-weight: 700; width: 14px; height: 14px; }
 .alerts { margin: 10px 0 0; color: var(--muted); }
 .level-ok { background: var(--ok-bg); }
 .level-ok::before { background: var(--ok); }

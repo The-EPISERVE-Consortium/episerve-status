@@ -68,3 +68,18 @@ export function downloadsSummary(flows) {
     ok: okCount === dl.length,
   };
 }
+
+const DAY_TEXT = { ok: "fully up", partial: "partly down", down: "down", nodata: "no data" };
+
+export function dayLabel(day) {
+  return `${day.date}: ${DAY_TEXT[day.colour]}`;
+}
+
+export function barSummary(days) {
+  const n = (c) => days.filter((d) => d.colour === c).length;
+  let s = `${days.length}-day history, ${n("ok")} of ${days.length} days fully up`;
+  if (n("partial")) s += `, ${n("partial")} partly down`;
+  if (n("down")) s += `, ${n("down")} down`;
+  if (n("nodata")) s += `, ${n("nodata")} without data`;
+  return s;
+}

@@ -1,4 +1,4 @@
-import { banner, alertsLine, lastDays, downloadsSummary } from "./render.js";
+import { banner, alertsLine, lastDays, downloadsSummary, barSummary, dayLabel } from "./render.js";
 
 const RAW_URL =
   "https://raw.githubusercontent.com/The-EPISERVE-Consortium/episerve-status/data/status.json";
@@ -34,13 +34,23 @@ function when(iso, short) {
   return span;
 }
 
-function dot(ok) { return el("span", `dot ${ok ? "ok" : "down"}`); }
+// Status dot: colour plus glyph plus text label (never colour only).
+function dot(ok) {
+  const d = el("span", `dot ${ok ? "ok" : "down"}`, ok ? "\u2713" : "\u2715");
+  d.setAttribute("role", "img");
+  d.setAttribute("aria-label", ok ? "OK" : "Down");
+  d.title = ok ? "OK" : "Down";
+  return d;
+}
 
 function bar(history, key, now) {
   const b = el("div", "bar");
-  for (const d of lastDays(history, key, now)) {
+  const days = lastDays(history, key, now);
+  b.setAttribute("role", "img");
+  b.setAttribute("aria-label", barSummary(days));
+  for (const d of days) {
     const i = el("i", d.colour);
-    i.title = d.date;
+    i.title = dayLabel(d);
     b.append(i);
   }
   return b;
