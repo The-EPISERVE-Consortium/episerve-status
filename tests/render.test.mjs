@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  STALE_MS, isStale, banner, alertsLine, dayColour, lastDays, downloadsSummary, barSummary, dayLabel,
-  compareRelease, specCells, componentsStatus,
+  STALE_MS, isStale, banner, alertsLine, dayColour, lastDays, barSummary, dayLabel,
+  compareRelease, specCells, componentsStatus, flowsSummary,
 } from "../render.js";
 
 const now = new Date("2026-11-26T18:00:00Z");
@@ -72,19 +72,6 @@ test("lastDays", () => {
   assert.equal(days[0].date, "2026-10-28");
   assert.equal(days[0].colour, "nodata");
   assert.equal(lastDays({}, "missing", today).length, 30);
-});
-
-test("downloadsSummary", () => {
-  const flows = [
-    { name: "x", group: "other", last_run: "2030-01-01T00:00:00Z", next_run: "2020-01-01T00:00:00Z", ok: true },
-    { name: "a", group: "downloads", last_run: "2026-11-26T01:00:00Z", next_run: "2026-11-27T01:00:00Z", ok: true },
-    { name: "b", group: "downloads", last_run: "2026-11-25T01:00:00Z", next_run: "2026-11-27T00:00:00Z", ok: false },
-    { name: "c", group: "downloads", last_run: "2026-11-24T01:00:00Z", next_run: null, ok: true },
-  ];
-  assert.deepEqual(downloadsSummary(flows), {
-    okCount: 2, total: 3, ok: false,
-    lastRun: "2026-11-26T01:00:00Z", nextRun: "2026-11-27T00:00:00Z",
-  });
 });
 
 test("barSummary", () => {
@@ -225,4 +212,35 @@ test("dayLabel with check counts and last check", () => {
     "2026-11-26: partly down, 7 of 8 checks OK, last check 20:05");
   assert.equal(dayLabel({ date: "2026-11-25", colour: "nodata", ok: 0, total: 0 }, "20:05"),
     "2026-11-25: no data");
+});
+
+test("flowsSummary: all fine", () => {
+  const flows = [
+    { name: "b", last_state: "ok", next_run: "x", ok: true },
+    { name: "a", last_state: "ok", next_run: "x", ok: true },
+  ];
+  assert.deepEqual(flowsSummary(flows), { ok: true, total: 2, lastOk: 2, scheduled: 2, errors: [] });
+});
+
+test("flowsSummary: reasons, sorted by name", () => {
+  const flows = [
+    { name: "late", last_state: "ok", next_run: "x", ok: false },
+    { name: "failed", last_state: "failed", next_run: "x", ok: false },
+    { name: "never", last_state: "none", next_run: "x", ok: false },
+    { name: "unscheduled", last_state: "ok", next_run: null, ok: false },
+    { name: "fine", last_state: "ok", next_run: "x", ok: true },
+  ];
+  assert.deepEqual(flowsSummary(flows), {
+    ok: false, total: 5, lastOk: 3, scheduled: 4,
+    errors: [
+      { name: "failed", reason: "last run failed" },
+      { name: "late", reason: "late" },
+      { name: "never", reason: "never ran" },
+      { name: "unscheduled", reason: "not scheduled" },
+    ],
+  });
+});
+
+test("flowsSummary: no flows is not ok", () => {
+  assert.deepEqual(flowsSummary(undefined), { ok: false, total: 0, lastOk: 0, scheduled: 0, errors: [] });
 });

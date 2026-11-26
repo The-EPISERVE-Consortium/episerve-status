@@ -54,19 +54,8 @@ section h2 { margin-top: 12px; }
 .bar i.ok { background: var(--ok); }
 .bar i.partial { background: var(--partial); }
 .bar i.down { background: var(--down); }
-.flow, .flows summary {
-  display: grid; grid-template-columns: 1fr 9.5rem 9.5rem 1.5rem; gap: 10px;
-  align-items: center; padding: 6px 0; border-top: 1px solid var(--line);
-}
-.flows .head { border-top: 0; color: var(--muted); font-size: .85rem; }
-.flows details > summary { cursor: pointer; list-style: none; }
-.flows details > summary::-webkit-details-marker { display: none; }
-.flows details > summary .name::after { content: "\00a0\25BE"; color: var(--muted); }
-.flows details[open] > summary .name::after { content: "\00a0\25B4"; }
-.flows details > .flow:not(summary) { padding-left: 18px; font-size: .92rem; }
-.flow .name { overflow-wrap: anywhere; }
-.flow .time { color: var(--muted); font-size: .92rem; }
-section h3 { font-size: .9rem; margin: 14px 0 4px; color: var(--muted); }
+.rowdetail { grid-column: 2 / -1; color: var(--muted); font-size: .9rem; display: grid; gap: 4px; margin-top: -2px; }
+.flowerror { display: flex; align-items: center; gap: 6px; color: var(--text, inherit); overflow-wrap: anywhere; }
 .specs { overflow-x: auto; }
 .spectable { border-collapse: collapse; width: 100%; font-size: .92rem; }
 .spectable th, .spectable td { text-align: left; padding: 6px 10px 6px 0; border-top: 1px solid var(--line); vertical-align: top; }
@@ -79,10 +68,7 @@ footer a { color: inherit; }
 @media (max-width: 600px) {
   .row { grid-template-columns: 1fr auto; }
   .row .bar { grid-column: 1 / -1; }
-  .flow, .flows summary { grid-template-columns: 1fr 1.5rem; }
-  .flow .time { grid-column: 1; }
-  .flows .head { display: none; }
-  .flow .time::before { content: attr(data-label) "\00a0\00a0"; }
+  .rowdetail { grid-column: 1 / -1; margin-top: 0; }
   .spectable thead { display: none; }
   .spectable, .spectable tbody, .spectable tr, .spectable th, .spectable td { display: block; }
   .spectable tr { border-top: 1px solid var(--line); padding: 6px 0; }

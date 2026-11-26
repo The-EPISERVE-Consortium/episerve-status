@@ -57,20 +57,6 @@ export function lastDays(history, key, today, n = 30) {
   return out;
 }
 
-export function downloadsSummary(flows) {
-  const dl = (flows || []).filter((f) => f.group === "downloads");
-  const lastRuns = dl.map((f) => f.last_run).filter(Boolean).sort();
-  const nextRuns = dl.map((f) => f.next_run).filter(Boolean).sort();
-  const okCount = dl.filter((f) => f.ok).length;
-  return {
-    okCount,
-    total: dl.length,
-    lastRun: lastRuns.length ? lastRuns[lastRuns.length - 1] : null,
-    nextRun: nextRuns.length ? nextRuns[0] : null,
-    ok: okCount === dl.length,
-  };
-}
-
 const DAY_TEXT = { ok: "fully up", partial: "partly down", down: "down", nodata: "no data" };
 
 // lastCheck (e.g. "20:05") is given for today's square only.
@@ -153,4 +139,24 @@ export function componentsStatus(items) {
     .filter(([key]) => !(all[key] && all[key].ok === true))
     .map(([key, name]) => (all[key] && all[key].name) || name);
   return down.length ? { ok: false, text: `down (${down.join(", ")})` } : { ok: true, text: "up" };
+}
+
+// Why a flow is not OK, most specific first.
+function flowError(f) {
+  if (f.last_state === "failed") return "last run failed";
+  if (f.last_state !== "ok") return "never ran";
+  if (!f.next_run) return "not scheduled";
+  return "late";
+}
+
+export function flowsSummary(flows) {
+  const list = (flows || []).slice().sort((x, y) => (x.name < y.name ? -1 : x.name > y.name ? 1 : 0));
+  const errors = list.filter((f) => f.ok !== true).map((f) => ({ name: f.name, reason: flowError(f) }));
+  return {
+    ok: list.length > 0 && errors.length === 0,
+    total: list.length,
+    lastOk: list.filter((f) => f.last_state === "ok").length,
+    scheduled: list.filter((f) => f.next_run).length,
+    errors,
+  };
 }

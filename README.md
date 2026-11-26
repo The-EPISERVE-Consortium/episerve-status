@@ -13,9 +13,11 @@ Static status page for the EPISERVE platform, served with GitHub Pages.
   (counts only, no alert details).
 - Public services (website, data hub, API server, DOIP server) with a
   30-day bar, one square per day.
-- Workflow Server: server, worker and database as dots, the scheduler with
-  a 30-day bar, then the flows with last run, next run and status. The
-  dataset download flows are collapsed into one expandable row.
+- Workflow Server: "All components" (server, worker, database, scheduler;
+  up only when all are up) and "All flows" (up only when every scheduled flow
+  ran successfully, on time and has a next run), each with a 30-day bar. Below
+  "All flows": how many last runs were OK and how many flows are scheduled,
+  plus one line per flow with an error.
 - Specs: for each spec (`model-card`, `fdo`) the release and schema versions
   on GitHub, in the data hub sync check and in the API server, marked as OK, behind,
   invalid or unknown.

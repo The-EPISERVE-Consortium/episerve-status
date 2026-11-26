@@ -1,4 +1,4 @@
-import { banner, alertsLine, lastDays, downloadsSummary, barSummary, dayLabel, specCells, componentsStatus } from "./render.js";
+import { banner, alertsLine, lastDays, barSummary, dayLabel, specCells, componentsStatus, flowsSummary } from "./render.js";
 
 const RAW_URL =
   "https://raw.githubusercontent.com/The-EPISERVE-Consortium/episerve-status/data/status.json";
@@ -129,17 +129,6 @@ function barRow(status, key, v, now, word) {
   return r;
 }
 
-function flowRow(name, f, cls) {
-  const r = el(cls === "summary" ? "summary" : "div", "flow");
-  const last = when(f.lastRun, true);
-  const next = when(f.nextRun, true);
-  // Shown in front of the times on narrow screens, where the column header is hidden.
-  last.dataset.label = "Last run";
-  next.dataset.label = "Next run";
-  r.append(el("span", "name", name), last, next, dot(f.ok));
-  return r;
-}
-
 function render(status, now) {
   const b = banner(status, now);
   const bn = document.getElementById("banner");
@@ -165,10 +154,8 @@ function render(status, now) {
 
   const pub = document.getElementById("public");
   const pre = document.getElementById("prefect");
-  const flows = document.getElementById("flows");
   const specs = document.getElementById("specs");
-  const wasOpen = flows.querySelector("details")?.open === true;
-  for (const c of [pub, pre, flows, specs]) c.replaceChildren();
+  for (const c of [pub, pre, specs]) c.replaceChildren();
   if (!status) return;
 
   for (const [k, v] of itemsOf(status, "public")) {
@@ -183,29 +170,23 @@ function render(status, now) {
   cr.append(cs, bar(status.history, "prefect.components", now));
   pre.append(cr);
 
-  const head = el("div", "flow head");
-  head.append(el("span", "", "Flow"), el("span", "", "Last run"), el("span", "", "Next run"), el("span"));
-  flows.append(head);
-  const list = (status.flows || []).slice().sort((x, y) => x.name.localeCompare(y.name));
-  const dl = list.filter((f) => f.group === "downloads");
-  let done = dl.length === 0;
-  for (const f of list) {
-    if (f.group === "downloads") {
-      if (done) continue;
-      done = true;
-      const s = downloadsSummary(list);
-      const d = el("details");
-      d.open = wasOpen;
-      d.append(flowRow(`Dataset downloads (${s.total}), ${s.okCount}/${s.total} OK`,
-        { lastRun: s.lastRun, nextRun: s.nextRun, ok: s.ok }, "summary"));
-      for (const m of dl) {
-        d.append(flowRow(m.name, { lastRun: m.last_run, nextRun: m.next_run, ok: m.ok }, "row"));
-      }
-      flows.append(d);
-    } else {
-      flows.append(flowRow(f.name, { lastRun: f.last_run, nextRun: f.next_run, ok: f.ok }, "row"));
-    }
+  const fs = flowsSummary(status.flows);
+  const fr = el("div", "row");
+  fr.append(el("span", "", "All flows"));
+  const fst = el("span", "status");
+  const n = fs.errors.length;
+  fst.append(dot(fs.ok), document.createTextNode(
+    fs.ok ? "up" : n ? `${n} error${n === 1 ? "" : "s"}` : "no flows"));
+  fr.append(fst, bar(status.history, "prefect.flows", now));
+  const det = el("div", "rowdetail");
+  det.append(el("div", "", `${fs.lastOk} of ${fs.total} last runs OK · ${fs.scheduled} of ${fs.total} scheduled`));
+  for (const e of fs.errors) {
+    const line = el("div", "flowerror");
+    line.append(dot(false), document.createTextNode(`${e.name}: ${e.reason}`));
+    det.append(line);
   }
+  fr.append(det);
+  pre.append(fr);
 
   try {
     specs.append(specsTable(status.specs));
