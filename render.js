@@ -59,11 +59,14 @@ export function lastDays(history, key, today, n = 30) {
 
 const DAY_TEXT = { ok: "fully up", partial: "partly down", down: "down", nodata: "no data" };
 
-// lastCheck (e.g. "20:05") is given for today's square only.
+// lastCheck (e.g. "22:05") is given for today's square only; the day is then not complete.
 export function dayLabel(day, lastCheck) {
   let s = `${day.date}: ${DAY_TEXT[day.colour]}`;
   if (day.colour === "nodata" || !day.total) return s;
-  s += `, ${day.ok} of ${day.total} checks OK`;
+  const soFar = lastCheck ? " so far" : "";
+  if (day.total === 1) s += `, 1 hourly check${soFar}, ${day.ok ? "OK" : "not OK"}`;
+  else if (day.ok === day.total) s += `, all ${day.total} hourly checks${soFar} OK`;
+  else s += `, ${day.ok} of ${day.total} hourly checks${soFar} OK`;
   if (lastCheck) s += `, last check ${lastCheck}`;
   return s;
 }

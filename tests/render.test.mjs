@@ -205,12 +205,23 @@ test("lastDays carries the check counts", () => {
   assert.deepEqual(days.at(-2), { date: "2026-11-25", colour: "nodata", ok: 0, total: 0 });
 });
 
-test("dayLabel with check counts and last check", () => {
-  assert.equal(dayLabel({ date: "2026-11-26", colour: "ok", ok: 8, total: 8 }),
-    "2026-11-26: fully up, 8 of 8 checks OK");
-  assert.equal(dayLabel({ date: "2026-11-26", colour: "partial", ok: 7, total: 8 }, "20:05"),
-    "2026-11-26: partly down, 7 of 8 checks OK, last check 20:05");
-  assert.equal(dayLabel({ date: "2026-11-25", colour: "nodata", ok: 0, total: 0 }, "20:05"),
+test("dayLabel with hourly check counts", () => {
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "ok", ok: 24, total: 24 }),
+    "2026-11-25: fully up, all 24 hourly checks OK");
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "partial", ok: 21, total: 24 }),
+    "2026-11-25: partly down, 21 of 24 hourly checks OK");
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "down", ok: 0, total: 24 }),
+    "2026-11-25: down, 0 of 24 hourly checks OK");
+});
+
+test("dayLabel for today (so far, last check)", () => {
+  assert.equal(dayLabel({ date: "2026-11-26", colour: "ok", ok: 8, total: 8 }, "22:05"),
+    "2026-11-26: fully up, all 8 hourly checks so far OK, last check 22:05");
+  assert.equal(dayLabel({ date: "2026-11-26", colour: "partial", ok: 7, total: 8 }, "22:05"),
+    "2026-11-26: partly down, 7 of 8 hourly checks so far OK, last check 22:05");
+  assert.equal(dayLabel({ date: "2026-11-26", colour: "ok", ok: 1, total: 1 }, "22:05"),
+    "2026-11-26: fully up, 1 hourly check so far, OK, last check 22:05");
+  assert.equal(dayLabel({ date: "2026-11-25", colour: "nodata", ok: 0, total: 0 }, "22:05"),
     "2026-11-25: no data");
 });
 
