@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   STALE_MS, isStale, banner, alertsLine, dayColour, lastDays, downloadsSummary, barSummary, dayLabel,
-  compareRelease, specCells,
+  compareRelease, specCells, componentsStatus,
 } from "../render.js";
 
 const now = new Date("2026-11-26T18:00:00Z");
@@ -188,4 +188,25 @@ test("spec cell catalog without releases has no leading separator", () => {
 test("spec cell catalog invalid wins even without latest", () => {
   const c = specCells(row({ catalog: { releases: ["0.7.0"], valid: 4, total: 5, warnings: 0 } }), null);
   assert.equal(c.catalog.level, "invalid");
+});
+
+test("components: up when all four are ok", () => {
+  const items = {
+    "prefect.server": { name: "Server", ok: true }, "prefect.worker": { name: "Worker", ok: true },
+    "prefect.database": { name: "Database", ok: true }, "prefect.scheduler": { name: "Scheduler", ok: true },
+    "prefect.components": { name: "Components", ok: true },
+  };
+  assert.deepEqual(componentsStatus(items), { ok: true, text: "up" });
+});
+
+test("components: down names the failing parts", () => {
+  const items = {
+    "prefect.server": { name: "Server", ok: true }, "prefect.worker": { name: "Worker", ok: false },
+    "prefect.database": { name: "Database", ok: true }, "prefect.scheduler": { name: "Scheduler", ok: false },
+  };
+  assert.deepEqual(componentsStatus(items), { ok: false, text: "down (Worker, Scheduler)" });
+});
+
+test("components: missing parts count as down", () => {
+  assert.deepEqual(componentsStatus({}), { ok: false, text: "down (Server, Worker, Database, Scheduler)" });
 });

@@ -131,3 +131,19 @@ export function specCells(row, latest) {
   }
   return { github, catalog, api: apiCell };
 }
+
+// The Workflow Server's components; the "Components" row is up only when all are up.
+const COMPONENTS = [
+  ["prefect.server", "Server"],
+  ["prefect.worker", "Worker"],
+  ["prefect.database", "Database"],
+  ["prefect.scheduler", "Scheduler"],
+];
+
+export function componentsStatus(items) {
+  const all = items || {};
+  const down = COMPONENTS
+    .filter(([key]) => !(all[key] && all[key].ok === true))
+    .map(([key, name]) => (all[key] && all[key].name) || name);
+  return down.length ? { ok: false, text: `down (${down.join(", ")})` } : { ok: true, text: "up" };
+}

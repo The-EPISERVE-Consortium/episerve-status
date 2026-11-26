@@ -1,9 +1,8 @@
-import { banner, alertsLine, lastDays, downloadsSummary, barSummary, dayLabel, specCells } from "./render.js";
+import { banner, alertsLine, lastDays, downloadsSummary, barSummary, dayLabel, specCells, componentsStatus } from "./render.js";
 
 const RAW_URL =
   "https://raw.githubusercontent.com/The-EPISERVE-Consortium/episerve-status/data/status.json";
 const REFRESH_MS = 10 * 60 * 1000;
-const BAR_KEYS = new Set(["prefect.scheduler"]);
 
 // ?src= accepts only a same-origin relative path, e.g. sample.json.
 function sourceUrl() {
@@ -118,12 +117,6 @@ function itemsOf(status, group) {
   return Object.entries(status.items || {}).filter(([, v]) => v.group === group);
 }
 
-function dotItem([, v]) {
-  const s = el("span", "item");
-  s.append(dot(v.ok), document.createTextNode(v.name));
-  return s;
-}
-
 function barRow(status, key, v, now, word) {
   const r = el("div", "row");
   r.append(el("span", "", v.name));
@@ -173,14 +166,13 @@ function render(status, now) {
     pub.append(barRow(status, k, v, now, ["online", "offline"]));
   }
 
-  const dots = el("div", "subdots");
-  for (const e of itemsOf(status, "prefect")) {
-    if (!BAR_KEYS.has(e[0])) dots.append(dotItem(e));
-  }
-  pre.append(dots);
-  for (const [k, v] of itemsOf(status, "prefect")) {
-    if (BAR_KEYS.has(k)) pre.append(barRow(status, k, v, now, ["up", "down"]));
-  }
+  const comp = componentsStatus(status.items);
+  const cr = el("div", "row");
+  cr.append(el("span", "", "Components"));
+  const cs = el("span", "status");
+  cs.append(dot(comp.ok), document.createTextNode(comp.text));
+  cr.append(cs, bar(status.history, "prefect.components", now));
+  pre.append(cr);
 
   const head = el("div", "flow head");
   head.append(el("span", "", "Flow"), el("span", "", "Last run"), el("span", "", "Next run"), el("span"));
