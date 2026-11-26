@@ -168,7 +168,7 @@ function render(status, now) {
 
   const comp = componentsStatus(status.items);
   const cr = el("div", "row");
-  cr.append(el("span", "", "Components"));
+  cr.append(el("span", "", "All components"));
   const cs = el("span", "status");
   cs.append(dot(comp.ok), document.createTextNode(comp.text));
   cr.append(cs, bar(status.history, "prefect.components", now));
