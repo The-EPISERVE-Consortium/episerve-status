@@ -19,7 +19,6 @@ Static status page for the EPISERVE platform, served with GitHub Pages.
 - Specs: for each spec (`model-card`, `fdo`) the release and schema versions
   on GitHub, in the catalog and in the API server, marked as OK, behind,
   invalid or unknown.
-- Platform pods as dots.
 
 Times are shown in the viewer's local time zone; hover for UTC.
 

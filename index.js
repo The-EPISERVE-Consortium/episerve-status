@@ -152,10 +152,9 @@ function render(status, now) {
   const pub = document.getElementById("public");
   const pre = document.getElementById("prefect");
   const flows = document.getElementById("flows");
-  const pods = document.getElementById("pods");
   const specs = document.getElementById("specs");
   const wasOpen = flows.querySelector("details")?.open === true;
-  for (const c of [pub, pre, flows, pods, specs]) c.replaceChildren();
+  for (const c of [pub, pre, flows, specs]) c.replaceChildren();
   if (!status) return;
 
   for (const [k, v] of itemsOf(status, "public")) {
@@ -200,8 +199,6 @@ function render(status, now) {
   } catch (e) {
     specs.replaceChildren(specsTable(undefined));
   }
-
-  for (const e of itemsOf(status, "pods")) pods.append(dotItem(e));
 }
 
 async function refresh() {

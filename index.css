@@ -54,8 +54,7 @@ section h2 { margin-top: 12px; }
 .bar i.ok { background: var(--ok); }
 .bar i.partial { background: var(--partial); }
 .bar i.down { background: var(--down); }
-.dots { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 6px 0; }
-.dots .item, .subdots .item { display: inline-flex; align-items: center; gap: 6px; }
+.subdots .item { display: inline-flex; align-items: center; gap: 6px; }
 .subdots { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 6px 0 2px; }
 .flow, .flows summary {
   display: grid; grid-template-columns: 1fr 9.5rem 9.5rem 1.5rem; gap: 10px;
