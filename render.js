@@ -83,3 +83,49 @@ export function barSummary(days) {
   if (n("nodata")) s += `, ${n("nodata")} without data`;
   return s;
 }
+
+export function compareRelease(a, b) {
+  const x = String(a).split(".").map(Number);
+  const y = String(b).split(".").map(Number);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    const d = (x[i] || 0) - (y[i] || 0);
+    if (d) return d > 0 ? 1 : -1;
+  }
+  return 0;
+}
+
+const UNKNOWN = () => ({ level: "unknown", text: "unknown" });
+const DOT = " · ";
+
+export function specCells(row, latest) {
+  if (!row) return { github: UNKNOWN(), catalog: UNKNOWN(), api: UNKNOWN() };
+  const { github: gh, api, catalog: cat } = row;
+  const ghVersions = gh ? gh.versions.join(",") : null;
+
+  const github = gh
+    ? { level: "none", text: `v${gh.release}${DOT}${gh.versions.map((v) => `v${v}`).join(", ")}` }
+    : UNKNOWN();
+
+  let apiCell = UNKNOWN();
+  if (api) {
+    const text = `${api.release}${DOT}${api.versions.map((v) => `v${v}`).join(", ")}`;
+    if (latest == null) apiCell = { level: "unknown", text };
+    else if (compareRelease(api.release, latest) < 0 ||
+             (ghVersions !== null && api.versions.join(",") !== ghVersions)) {
+      apiCell = { level: "behind", text: `${text}${DOT}behind` };
+    } else apiCell = { level: "ok", text };
+  }
+
+  let catalog = UNKNOWN();
+  if (cat && cat.recorded === false) {
+    catalog = { level: "notrecorded", text: "not recorded" };
+  } else if (cat) {
+    let text = `${cat.releases.join(", ")}${DOT}${cat.valid}/${cat.total} valid`;
+    if (cat.warnings > 0) text += ` (${cat.warnings} with warnings)`;
+    if (cat.valid < cat.total) catalog = { level: "invalid", text: `${text}${DOT}invalid` };
+    else if (latest == null) catalog = { level: "unknown", text };
+    else if (cat.releases.some((r) => compareRelease(r, latest) < 0)) catalog = { level: "behind", text };
+    else catalog = { level: "ok", text };
+  }
+  return { github, catalog, api: apiCell };
+}

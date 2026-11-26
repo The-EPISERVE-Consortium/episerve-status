@@ -13,10 +13,12 @@ Static status page for the EPISERVE platform, served with GitHub Pages.
   (counts only, no alert details).
 - Public services (website, data hub, API server, DOIP server) with a
   30-day bar, one square per day.
-- Prefect: server, worker and database as dots, the scheduler with a
-  30-day bar.
-- Prefect flows: last run, next run and status. The dataset download flows
-  are collapsed into one expandable row.
+- Workflow Server: server, worker and database as dots, the scheduler with
+  a 30-day bar, then the flows with last run, next run and status. The
+  dataset download flows are collapsed into one expandable row.
+- Specs: for each spec (`model-card`, `fdo`) the release and schema versions
+  on GitHub, in the catalog and in the API server, marked as OK, behind,
+  invalid or unknown.
 - Platform pods as dots.
 
 Times are shown in the viewer's local time zone; hover for UTC.

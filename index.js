@@ -1,4 +1,4 @@
-import { banner, alertsLine, lastDays, downloadsSummary, barSummary, dayLabel } from "./render.js";
+import { banner, alertsLine, lastDays, downloadsSummary, barSummary, dayLabel, specCells } from "./render.js";
 
 const RAW_URL =
   "https://raw.githubusercontent.com/The-EPISERVE-Consortium/episerve-status/data/status.json";
@@ -41,6 +41,57 @@ function dot(ok) {
   d.setAttribute("aria-label", ok ? "OK" : "Down");
   d.title = ok ? "OK" : "Down";
   return d;
+}
+
+const SPEC_DOTS = {
+  ok: ["ok", "\u2713", "OK"],
+  behind: ["behind", "!", "Behind"],
+  invalid: ["down", "\u2715", "Invalid"],
+  unknown: ["nodata", "\u2013", "Unknown"],
+  notrecorded: ["nodata", "\u2013", "Not recorded"],
+};
+
+function specDot(level) {
+  const [cls, glyph, label] = SPEC_DOTS[level];
+  const d = el("span", `dot ${cls}`, glyph);
+  d.setAttribute("role", "img");
+  d.setAttribute("aria-label", label);
+  d.title = label;
+  return d;
+}
+
+function specCell(cell, label) {
+  const td = el("td");
+  td.dataset.label = label;
+  const w = el("span", "speccell");
+  if (cell.level !== "none") w.append(specDot(cell.level));
+  w.append(document.createTextNode(cell.text));
+  td.append(w);
+  return td;
+}
+
+function specsTable(specs) {
+  const t = el("table", "spectable");
+  const hr = el("tr");
+  for (const h of ["Spec", "GitHub", "Catalog", "API"]) hr.append(el("th", "", h));
+  const head = el("thead");
+  head.append(hr);
+  t.append(head);
+  const body = el("tbody");
+  const latest = specs && typeof specs.latest === "string" ? specs.latest : null;
+  const rows = specs && Array.isArray(specs.rows) && specs.rows.length
+    ? specs.rows : [{ spec: "model-card" }, { spec: "fdo" }];
+  for (const r of rows) {
+    const c = specCells(specs ? r : undefined, latest);
+    const tr = el("tr");
+    const th = el("th", "", r.spec);
+    th.scope = "row";
+    tr.append(th);
+    tr.append(specCell(c.github, "GitHub"), specCell(c.catalog, "Catalog"), specCell(c.api, "API"));
+    body.append(tr);
+  }
+  t.append(body);
+  return t;
 }
 
 function bar(history, key, now) {
@@ -102,8 +153,9 @@ function render(status, now) {
   const pre = document.getElementById("prefect");
   const flows = document.getElementById("flows");
   const pods = document.getElementById("pods");
+  const specs = document.getElementById("specs");
   const wasOpen = flows.querySelector("details")?.open === true;
-  for (const c of [pub, pre, flows, pods]) c.replaceChildren();
+  for (const c of [pub, pre, flows, pods, specs]) c.replaceChildren();
   if (!status) return;
 
   for (const [k, v] of itemsOf(status, "public")) {
@@ -142,6 +194,8 @@ function render(status, now) {
       flows.append(flowRow(f.name, { lastRun: f.last_run, nextRun: f.next_run, ok: f.ok }, "row"));
     }
   }
+
+  specs.append(specsTable(status.specs));
 
   for (const e of itemsOf(status, "pods")) pods.append(dotItem(e));
 }

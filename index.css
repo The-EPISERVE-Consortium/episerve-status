@@ -43,6 +43,7 @@ h2 { font-size: 1.05rem; margin: 28px 0 8px; }
 .alerts.level-ok::before { background: var(--ok); }
 .dot.ok { background: var(--ok); }
 .dot.down { background: var(--down); }
+.dot.behind { background: var(--partial); }
 .dot.nodata { background: var(--nodata); }
 section { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 4px 16px 12px; margin-top: 16px; }
 section h2 { margin-top: 12px; }
@@ -68,6 +69,14 @@ section h2 { margin-top: 12px; }
 .flows details .flow { padding-left: 18px; font-size: .92rem; }
 .flow .name { overflow-wrap: anywhere; }
 .flow .time { color: var(--muted); font-size: .92rem; }
+section h3 { font-size: .9rem; margin: 14px 0 4px; color: var(--muted); }
+.specs { overflow-x: auto; }
+.spectable { border-collapse: collapse; width: 100%; font-size: .92rem; }
+.spectable th, .spectable td { text-align: left; padding: 6px 10px 6px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.spectable thead th { border-top: 0; color: var(--muted); font-size: .85rem; font-weight: 600; }
+.spectable tbody th { font-weight: 600; white-space: nowrap; }
+.speccell { display: inline-flex; align-items: flex-start; gap: 6px; min-width: 10rem; }
+.speccell .dot { margin-top: 3px; }
 footer { margin-top: 28px; color: var(--muted); font-size: .9rem; }
 footer a { color: inherit; }
 @media (max-width: 600px) {

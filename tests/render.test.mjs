@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   STALE_MS, isStale, banner, alertsLine, dayColour, lastDays, downloadsSummary, barSummary, dayLabel,
+  compareRelease, specCells,
 } from "../render.js";
 
 const now = new Date("2026-11-26T18:00:00Z");
@@ -101,4 +102,69 @@ test("dayLabel", () => {
   assert.equal(dayLabel({ date: "2026-11-25", colour: "partial" }), "2026-11-25: partly down");
   assert.equal(dayLabel({ date: "2026-11-25", colour: "down" }), "2026-11-25: down");
   assert.equal(dayLabel({ date: "2026-11-25", colour: "nodata" }), "2026-11-25: no data");
+});
+
+test("compareRelease compares numerically", () => {
+  assert.equal(compareRelease("0.10.0", "0.9.1"), 1);
+  assert.equal(compareRelease("0.9.1", "0.10.0"), -1);
+  assert.equal(compareRelease("0.7.1", "0.7.1"), 0);
+});
+
+const row = (over = {}) => ({
+  spec: "model-card",
+  github: { release: "0.7.1", versions: ["1"] },
+  api: { release: "0.7.1", versions: ["1"] },
+  catalog: { releases: ["0.7.1"], valid: 5, total: 5, warnings: 0 },
+  ...over,
+});
+
+test("spec cells all ok", () => {
+  const c = specCells(row(), "0.7.1");
+  assert.deepEqual(c.github, { level: "none", text: "v0.7.1 \u00b7 v1" });
+  assert.deepEqual(c.api, { level: "ok", text: "0.7.1 \u00b7 v1" });
+  assert.deepEqual(c.catalog, { level: "ok", text: "0.7.1 \u00b7 5/5 valid" });
+});
+
+test("spec cell api behind by release", () => {
+  const c = specCells(row({ api: { release: "0.7.0", versions: ["1"] } }), "0.7.1");
+  assert.deepEqual(c.api, { level: "behind", text: "0.7.0 \u00b7 v1 \u00b7 behind" });
+});
+
+test("spec cell api behind by versions", () => {
+  const c = specCells(row({ api: { release: "0.7.1", versions: ["1"] },
+    github: { release: "0.7.1", versions: ["1", "2"] } }), "0.7.1");
+  assert.equal(c.github.text, "v0.7.1 \u00b7 v1, v2");
+  assert.equal(c.api.level, "behind");
+});
+
+test("spec cell catalog warnings and invalid beats behind", () => {
+  const w = specCells(row({ catalog: { releases: ["0.7.1"], valid: 5, total: 5, warnings: 3 } }), "0.7.1");
+  assert.deepEqual(w.catalog, { level: "ok", text: "0.7.1 \u00b7 5/5 valid (3 with warnings)" });
+  const i = specCells(row({ catalog: { releases: ["0.7.0"], valid: 4, total: 5, warnings: 0 } }), "0.7.1");
+  assert.deepEqual(i.catalog, { level: "invalid", text: "0.7.0 \u00b7 4/5 valid \u00b7 invalid" });
+  const b = specCells(row({ catalog: { releases: ["0.7.0", "0.7.1"], valid: 5, total: 5, warnings: 0 } }), "0.7.1");
+  assert.equal(b.catalog.level, "behind");
+  assert.equal(b.catalog.text, "0.7.0, 0.7.1 \u00b7 5/5 valid");
+});
+
+test("spec cell catalog not recorded and null sources", () => {
+  const c = specCells(row({ catalog: { recorded: false }, api: null, github: null }), "0.7.1");
+  assert.deepEqual(c.catalog, { level: "notrecorded", text: "not recorded" });
+  assert.deepEqual(c.api, { level: "unknown", text: "unknown" });
+  assert.deepEqual(c.github, { level: "unknown", text: "unknown" });
+  assert.deepEqual(specCells(row({ catalog: null }), "0.7.1").catalog, { level: "unknown", text: "unknown" });
+});
+
+test("spec cell without latest is unknown, not behind", () => {
+  const c = specCells(row({ api: { release: "0.7.0", versions: ["1"] },
+    catalog: { releases: ["0.7.0"], valid: 5, total: 5, warnings: 0 } }), null);
+  assert.deepEqual(c.api, { level: "unknown", text: "0.7.0 \u00b7 v1" });
+    assert.deepEqual(c.catalog, { level: "unknown", text: "0.7.0 \u00b7 5/5 valid" });
+});
+
+test("spec cells without specs section", () => {
+  const c = specCells(undefined, null);
+  for (const k of ["github", "catalog", "api"]) {
+    assert.deepEqual(c[k], { level: "unknown", text: "unknown" });
+  }
 });
