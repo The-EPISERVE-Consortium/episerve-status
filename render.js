@@ -160,3 +160,14 @@ export function flowsSummary(flows) {
     errors,
   };
 }
+
+// The CronJob runs at minute 5 of every hour (UTC); the next data update is the next such time.
+export const UPDATE_MINUTE = 5;
+
+export function nextUpdate(now) {
+  const t = new Date(now.getTime());
+  t.setUTCSeconds(0, 0);
+  t.setUTCMinutes(UPDATE_MINUTE);
+  if (t <= now) t.setUTCHours(t.getUTCHours() + 1);
+  return t;
+}

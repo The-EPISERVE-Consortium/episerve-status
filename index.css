@@ -63,9 +63,9 @@ section h2 { margin-top: 12px; }
 .spectable tbody th { font-weight: 600; white-space: nowrap; }
 .speccell { display: inline-flex; align-items: flex-start; gap: 6px; min-width: 10rem; }
 .speccell .dot { margin-top: 3px; }
-footer { margin-top: 28px; color: var(--muted); font-size: .9rem; }
-footer a { color: inherit; }
 @media (max-width: 600px) {
+  .updated .sep { display: none; }
+  .updated .part { display: block; }
   .row { grid-template-columns: 1fr auto; }
   .row .bar { grid-column: 1 / -1; }
   .rowdetail { grid-column: 1 / -1; margin-top: 0; }
@@ -77,3 +77,4 @@ footer a { color: inherit; }
   .spectable td::before { content: attr(data-label); flex: none; width: 6rem; color: var(--muted); font-size: .85rem; padding-top: 1px; }
   .speccell { min-width: 0; }
 }
+.updated .part { white-space: nowrap; }

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   STALE_MS, isStale, banner, alertsLine, dayColour, lastDays, barSummary, dayLabel,
-  compareRelease, specCells, componentsStatus, flowsSummary,
+  compareRelease, specCells, componentsStatus, flowsSummary, nextUpdate,
 } from "../render.js";
 
 const now = new Date("2026-11-26T18:00:00Z");
@@ -243,4 +243,10 @@ test("flowsSummary: reasons, sorted by name", () => {
 
 test("flowsSummary: no flows is not ok", () => {
   assert.deepEqual(flowsSummary(undefined), { ok: false, total: 0, lastOk: 0, scheduled: 0, errors: [] });
+});
+
+test("nextUpdate: next :05 UTC after now", () => {
+  assert.equal(nextUpdate(new Date("2026-11-26T21:04:59Z")).toISOString(), "2026-11-26T21:05:00.000Z");
+  assert.equal(nextUpdate(new Date("2026-11-26T21:05:00Z")).toISOString(), "2026-11-26T22:05:00.000Z");
+  assert.equal(nextUpdate(new Date("2026-11-26T23:30:00Z")).toISOString(), "2026-11-27T00:05:00.000Z");
 });

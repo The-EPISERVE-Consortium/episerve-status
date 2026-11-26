@@ -1,4 +1,4 @@
-import { banner, alertsLine, lastDays, barSummary, dayLabel, specCells, componentsStatus, flowsSummary } from "./render.js";
+import { banner, alertsLine, lastDays, barSummary, dayLabel, specCells, componentsStatus, flowsSummary, nextUpdate } from "./render.js";
 
 const RAW_URL =
   "https://raw.githubusercontent.com/The-EPISERVE-Consortium/episerve-status/data/status.json";
@@ -142,9 +142,13 @@ function render(status, now) {
 
   const up = document.getElementById("updated");
   up.className = b.level === "stale" ? "updated stale" : "updated";
-  up.textContent = "Last data update: ";
-  if (status && status.generated_at) up.append(when(status.generated_at, false));
-  else up.append("unknown");
+  up.replaceChildren();
+  const last = el("span", "part", "Last data update: ");
+  if (status && status.generated_at) last.append(when(status.generated_at, false));
+  else last.append("unknown");
+  const next = el("span", "part", "Next data update: ");
+  next.append(when(nextUpdate(now).toISOString(), false));
+  up.append(last, el("span", "sep", " \u00b7 "), next);
 
   const gen = status && status.generated_at ? new Date(status.generated_at) : null;
   lastCheck = gen && !Number.isNaN(gen.getTime()) &&
