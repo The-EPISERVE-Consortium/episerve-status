@@ -102,6 +102,7 @@ function render(status, now) {
   const pre = document.getElementById("prefect");
   const flows = document.getElementById("flows");
   const pods = document.getElementById("pods");
+  const wasOpen = flows.querySelector("details")?.open === true;
   for (const c of [pub, pre, flows, pods]) c.replaceChildren();
   if (!status) return;
 
@@ -130,6 +131,7 @@ function render(status, now) {
       done = true;
       const s = downloadsSummary(list);
       const d = el("details");
+      d.open = wasOpen;
       d.append(flowRow(`Dataset downloads (${s.total}), ${s.okCount}/${s.total} OK`,
         { lastRun: s.lastRun, nextRun: s.nextRun, ok: s.ok }, "summary"));
       for (const m of dl) {
