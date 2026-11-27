@@ -1,6 +1,6 @@
 # EPISERVE Platform Status
 
-**Live page: https://the-episerve-consortium.github.io/episerve-status/**
+**Live page: https://status.episerve.zib.de/**
 
 Static status page for the EPISERVE platform, served with GitHub Pages.
 
