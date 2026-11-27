@@ -20,6 +20,9 @@ export function banner(status, now) {
   if (items.some((i) => i.ok === false) || flows.some((f) => f.ok === false)) {
     return { level: "down", text: "Partial outage" };
   }
+  if (status.alerts && status.alerts.critical > 0) {
+    return { level: "critical", text: "Critical alerts active" };
+  }
   return { level: "ok", text: "All systems operational" };
 }
 

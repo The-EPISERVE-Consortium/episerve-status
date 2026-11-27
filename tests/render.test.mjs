@@ -40,6 +40,20 @@ test("banner ok", () => {
     { level: "ok", text: "All systems operational" });
 });
 
+test("banner reports critical alerts, not warnings", () => {
+  const withAlerts = (warning, critical) => ({ ...fresh(), alerts: { warning, critical } });
+  assert.deepEqual(banner(withAlerts(0, 1), now),
+    { level: "critical", text: "Critical alerts active" });
+  assert.equal(banner(withAlerts(3, 0), now).level, "ok");
+  assert.equal(banner({ ...fresh(), alerts: null }, now).level, "ok");
+});
+
+test("banner outage and stale win over critical alerts", () => {
+  const alerts = { warning: 0, critical: 1 };
+  assert.equal(banner({ ...fresh({ a: { ok: false } }), alerts }, now).text, "Partial outage");
+  assert.equal(banner({ ...fresh(), generated_at: ago(200), alerts }, now).level, "stale");
+});
+
 test("alertsLine", () => {
   assert.deepEqual(alertsLine({ warning: 1, critical: 0 }),
     { level: "warning", text: "Active alerts: 1 warning, 0 critical" });
